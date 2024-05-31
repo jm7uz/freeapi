@@ -13,4 +13,4 @@ def video_watcheds():
     return jsonify({"message": "hello"})
 
 if __name__ == "__main__":
-    app.run(ssl_context='adhoc')
+    app.run()
