@@ -1,2 +1,3 @@
 Flask==1.1.2
 gunicorn==22.0.0
+Jinja2
