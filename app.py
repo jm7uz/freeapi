@@ -73,8 +73,6 @@ def top_100_users():
             user_data = {
                 "id": user.id,
                 "full_name": user.full_name,
-                "quiz_start": user.quiz_start.isoformat(),
-                "quiz_end": user.quiz_end.isoformat(),
                 "quiz_result": user.quiz_result
             }
             top_users_json.append(user_data)
