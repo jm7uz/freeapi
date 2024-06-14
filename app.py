@@ -3,7 +3,7 @@ import sqlite3
 
 
 class Database:
-    def __init__(self, path_to_db="data/main.db"):
+    def __init__(self, path_to_db="main.db"):
         self.path_to_db = path_to_db
 
     @property
@@ -62,7 +62,7 @@ class Database:
         return self.execute(sql, fetchall=True)
         
         
-db = Database()
+db = Database(path_to_db="main.db")
 try:
     db.create_table_users()
 except:
