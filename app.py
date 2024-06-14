@@ -61,23 +61,32 @@ def video_watcheds():
     except SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/top100', methods=['GET'])
-def top_100_users():
+@app.route('/top_users', methods=['GET'])
+def top_users():
     try:
-        # Query to fetch top 100 users based on quiz_result and time criteria
-        top_users = db.session.query(User).order_by(User.quiz_result.desc(), User.quiz_start.asc(), User.quiz_end.asc()).limit(100).all()
-        
-        # Convert the query result to JSON format
-        top_users_json = []
-        for user in top_users:
-            user_data = {
-                "id": user.id,
-                "full_name": user.full_name,
-                "quiz_result": user.quiz_result
+        # Execute the SQL query using SQLAlchemy
+        query_result = db.session.query(
+            User.id,
+            User.full_name,
+            User.quiz_result,
+            db.func.EXTRACT('EPOCH', (User.quiz_end - User.quiz_start)).label('duration_seconds')
+        ).order_by(
+            User.quiz_result.desc(),
+            db.func.EXTRACT('EPOCH', (User.quiz_end - User.quiz_start)).asc()
+        ).all()
+
+        # Format the result into a list of dictionaries
+        results = []
+        for row in query_result:
+            result_dict = {
+                'id': row.id,
+                'full_name': row.full_name,
+                'quiz_result': row.quiz_result,
+                'duration_seconds': row.duration_seconds
             }
-            top_users_json.append(user_data)
-        
-        return jsonify(top_users_json), 200
+            results.append(result_dict)
+
+        return jsonify(results), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
