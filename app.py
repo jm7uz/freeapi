@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://users_data_gjpa_user:lPRq94fX7KBrUbRFg1SqK97goEWAh8Oh@dpg-cpm2nqqj1k6c739vt06g-a.oregon-postgres.render.com:5432/users_data_gjpa'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
