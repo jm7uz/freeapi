@@ -25,7 +25,7 @@ with app.app_context():
 
 @app.route("/")
 def hello():
-    return "<h1 style='color:blue'>Hello There!</h1>"
+    return "<h1 style='color:blue'>Hello There jm!</h1>"
 
 @app.route('/api/user_data', methods=['POST'])
 def video_watched():
