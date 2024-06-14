@@ -61,6 +61,16 @@ def video_watcheds():
     except SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route('/top100', methods=['GET'])
+def top_100_users():
+    try:
+        top_users = db.session.query(User).order_by(User.quiz_result.desc(), User.quiz_start.asc(), User.quiz_end.asc()).limit(100).all()
+        
+        return render_template('top100.html', top_users=top_users)
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def logger(statement):
     print(f"""
 _____________________________________________________        
