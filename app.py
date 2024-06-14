@@ -64,15 +64,15 @@ def video_watcheds():
 @app.route('/top_users', methods=['GET'])
 def top_users():
     try:
-        # Execute the SQL query using SQLAlchemy
+        # Execute the SQLAlchemy query with type casting
         query_result = db.session.query(
             User.id,
             User.full_name,
             User.quiz_result,
-            db.func.EXTRACT('EPOCH', (User.quiz_end - User.quiz_start)).label('duration_seconds')
+            func.EXTRACT('EPOCH', (User.quiz_end.cast(db.TIMESTAMP) - User.quiz_start.cast(db.TIMESTAMP))).label('duration_seconds')
         ).order_by(
             User.quiz_result.desc(),
-            db.func.EXTRACT('EPOCH', (User.quiz_end - User.quiz_start)).asc()
+            func.EXTRACT('EPOCH', (User.quiz_end.cast(db.TIMESTAMP) - User.quiz_start.cast(db.TIMESTAMP))).asc()
         ).all()
 
         # Format the result into a list of dictionaries
@@ -90,7 +90,7 @@ def top_users():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+        
 def logger(statement):
     print(f"""
 _____________________________________________________        
