@@ -10,3 +10,4 @@ zipp==3.18.1
 flask-cors
 gunicorn
 requests
+sqlite3
