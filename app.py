@@ -64,7 +64,6 @@ def video_watcheds():
 @app.route('/top_users', methods=['GET'])
 def top_users():
     try:
-        # Execute the SQLAlchemy query with type casting
         query_result = db.session.query(
             User.id,
             User.full_name,
@@ -75,14 +74,12 @@ def top_users():
             func.EXTRACT('EPOCH', (User.quiz_end.cast(db.TIMESTAMP) - User.quiz_start.cast(db.TIMESTAMP))).asc()
         ).all()
 
-        # Format the result into a list of dictionaries
         results = []
         for row in query_result:
             result_dict = {
                 'id': row.id,
                 'full_name': row.full_name,
-                'quiz_result': row.quiz_result,
-                'duration_seconds': row.duration_seconds
+                'quiz_result': row.quiz_result
             }
             results.append(result_dict)
 
