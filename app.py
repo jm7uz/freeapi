@@ -64,29 +64,26 @@ def video_watcheds():
 @app.route('/top_users', methods=['GET'])
 def top_users():
     try:
-        query_result = db.session.query(
-            User.id,
-            User.full_name,
-            User.quiz_result,
-            func.EXTRACT('EPOCH', (User.quiz_end.cast(db.TIMESTAMP) - User.quiz_start.cast(db.TIMESTAMP))).label('duration_seconds')
-        ).order_by(
-            User.quiz_result.desc(),
-            func.EXTRACT('EPOCH', (User.quiz_end.cast(db.TIMESTAMP) - User.quiz_start.cast(db.TIMESTAMP))).asc()
-        ).all()
-
-        results = []
-        for row in query_result:
-            result_dict = {
-                'id': row.id,
-                'full_name': row.full_name,
-                'quiz_result': row.quiz_result
-            }
-            results.append(result_dict)
-
-        return jsonify(results), 200
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Define the PostgreSQL query
+        psql_query = """
+            SELECT id, full_name, quiz_result,
+                   EXTRACT(EPOCH FROM (quiz_end::timestamp - quiz_start::timestamp)) AS duration_seconds
+            FROM users
+            ORDER BY quiz_result DESC, duration_seconds ASC;
+        """
+        
+        # Execute the query
+        result = db.session.execute(psql_query)
+        
+        # Format the results into a list of dictionaries
+        users_list = [
+            {"id": row.id, "full_name": row.full_name, "quiz_result": row.quiz_result}
+            for row in result
+        ]
+        
+        return jsonify({"top_users": users_list}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"error": str(e)}), 400
         
 def logger(statement):
     print(f"""
