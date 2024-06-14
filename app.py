@@ -1,7 +1,4 @@
 from flask import Flask, request, jsonify
-import asyncio
-
-
 import sqlite3
 
 
@@ -57,6 +54,12 @@ class Database:
         INSERT INTO Users(id, full_name, quiz_start, quiz_end, quiz_result) VALUES(?, ?, ?, ?, ?)
         """
         self.execute(sql, parameters=(id, full_name, quiz_start, quiz_end, quiz_result), commit=True)
+    
+    def select_all_users(self):
+        sql = """
+        SELECT * FROM Users
+        """
+        return self.execute(sql, fetchall=True)
         
         
 db = Database()
@@ -90,7 +93,8 @@ def video_watched():
 
 @app.route('/api', methods=['GET'])
 def video_watcheds():
-    return jsonify({"message": "hello"})
+    all = db.select_all_users()
+    return jsonify({"message": f"hello update {all}"})
 
 
 
