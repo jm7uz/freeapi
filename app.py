@@ -64,7 +64,7 @@ def video_watcheds():
 @app.route('/top_users', methods=['GET'])
 def top_users():
     try:
-        # Define the PostgreSQL query
+        # Define the PostgreSQL query as text
         psql_query = """
             SELECT id, full_name, quiz_result,
                    EXTRACT(EPOCH FROM (quiz_end::timestamp - quiz_start::timestamp)) AS duration_seconds
@@ -72,12 +72,12 @@ def top_users():
             ORDER BY quiz_result DESC, duration_seconds ASC;
         """
         
-        # Execute the query
-        result = db.session.execute(psql_query)
+        # Execute the query using text() function
+        result = db.session.execute(text(psql_query))
         
         # Format the results into a list of dictionaries
         users_list = [
-            {"id": row.id, "full_name": row.full_name, "quiz_result": row.quiz_result}
+            {"id": row.id, "full_name": row.full_name, "quiz_result": row.quiz_result, "duration_seconds": row.duration_seconds}
             for row in result
         ]
         
