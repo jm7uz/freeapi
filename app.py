@@ -64,9 +64,22 @@ def video_watcheds():
 @app.route('/top100', methods=['GET'])
 def top_100_users():
     try:
+        # Query to fetch top 100 users based on quiz_result and time criteria
         top_users = db.session.query(User).order_by(User.quiz_result.desc(), User.quiz_start.asc(), User.quiz_end.asc()).limit(100).all()
         
-        return render_template('top100.html', top_users=top_users)
+        # Convert the query result to JSON format
+        top_users_json = []
+        for user in top_users:
+            user_data = {
+                "id": user.id,
+                "full_name": user.full_name,
+                "quiz_start": user.quiz_start.isoformat(),
+                "quiz_end": user.quiz_end.isoformat(),
+                "quiz_result": user.quiz_result
+            }
+            top_users_json.append(user_data)
+        
+        return jsonify(top_users_json), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
