@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 # Define the User model
 class User(db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     full_name = db.Column(db.String, nullable=False)
     quiz_start = db.Column(db.String, nullable=False)
     quiz_end = db.Column(db.String, nullable=False)
