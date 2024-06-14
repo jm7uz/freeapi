@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import text
 
 app = Flask(__name__)
 
