@@ -1,76 +1,65 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
-import databases
-import sqlalchemy
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import SQLAlchemyError
 
-DATABASE_URL = "postgresql://users_data_gjpa_user:lPRq94fX7KBrUbRFg1SqK97goEWAh8Oh@dpg-cpm2nqqj1k6c739vt06g-a.oregon-postgres.render.com:5432/users_data_gjpa"
+app = Flask(__name__)
 
-# Initialize the database connection
-database = databases.Database(DATABASE_URL)
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://users_data_gjpa_user:lPRq94fX7KBrUbRFg1SqK97goEWAh8Oh@dpg-cpm2nqqj1k6c739vt06g-a.oregon-postgres.render.com:5432/users_data_gjpa'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# SQLAlchemy metadata
-metadata = sqlalchemy.MetaData()
+db = SQLAlchemy(app)
 
-# Define the table
-users = sqlalchemy.Table(
-    "users",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("full_name", sqlalchemy.String),
-    sqlalchemy.Column("quiz_start", sqlalchemy.Integer),
-    sqlalchemy.Column("quiz_end", sqlalchemy.Integer),
-    sqlalchemy.Column("quiz_result", sqlalchemy.Integer),
-)
+# Define the User model
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String, nullable=False)
+    quiz_start = db.Column(db.String, nullable=False)
+    quiz_end = db.Column(db.String, nullable=False)
+    quiz_result = db.Column(db.Integer, nullable=False)
 
-# Create the database engine
-engine = sqlalchemy.create_engine(DATABASE_URL)
-metadata.create_all(engine)
+# Create the database tables
+with app.app_context():
+    db.create_all()
 
-app = FastAPI()
+@app.route("/")
+def hello():
+    return "<h1 style='color:blue'>Hello There!</h1>"
 
-class UserData(BaseModel):
-    user_id: int
-    full_name: str
-    quiz_start: int
-    quiz_end: int
-    quiz_result: int
+@app.route('/api/user_data', methods=['POST'])
+def video_watched():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    full_name = data.get('full_name')
+    quiz_start = data.get('quiz_start')
+    quiz_end = data.get('quiz_end')
+    quiz_result = data.get('quiz_result')
 
-@app.on_event("startup")
-async def startup():
-    await database.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
-
-@app.get("/")
-async def read_root():
-    return {"message": "Hello There!"}
-
-@app.post("/api/user_data")
-async def video_watched(user_data: UserData):
-    query = users.insert().values(
-        id=user_data.user_id,
-        full_name=user_data.full_name,
-        quiz_start=user_data.quiz_start,
-        quiz_end=user_data.quiz_end,
-        quiz_result=user_data.quiz_result,
+    new_user = User(
+        id=user_id,
+        full_name=full_name,
+        quiz_start=quiz_start,
+        quiz_end=quiz_end,
+        quiz_result=quiz_result
     )
     try:
-        await database.execute(query)
-        return {"message": "Data added."}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"message": "Data added."}), 201
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
-@app.get("/api")
-async def video_watcheds():
-    query = users.select()
+@app.route('/api', methods=['GET'])
+def video_watcheds():
     try:
-        all_users = await database.fetch_all(query)
-        return {"message": f"hello update {all_users}"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        all_users = User.query.all()
+        users_list = [{"id": user.id, "full_name": user.full_name, "quiz_start": user.quiz_start, 
+                       "quiz_end": user.quiz_end, "quiz_result": user.quiz_result} for user in all_users]
+        return jsonify({"users": users_list}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"error": str(e)}), 400
 
 def logger(statement):
     print(f"""
@@ -81,5 +70,4 @@ _____________________________________________________
 """)
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    app.run(host='0.0.0.0', port=8000)
