@@ -37,13 +37,15 @@ def video_watched():
     quiz_start = data.get('quiz_start')
     quiz_end = data.get('quiz_end')
     quiz_result = data.get('quiz_result')
-
+    region = data.get('region') 
+    
     new_user = User(
         id=user_id,
         full_name=full_name,
         quiz_start=quiz_start,
         quiz_end=quiz_end,
-        quiz_result=quiz_result
+        quiz_result=quiz_result,
+        region=region
     )
     try:
         db.session.add(new_user)
@@ -79,7 +81,7 @@ def top_users():
         
         # Format the results into a list of dictionaries
         users_list = [
-            {"id": row.id, "full_name": row.full_name, "quiz_result": row.quiz_result, "duration_seconds": row.duration_seconds}
+            {"id": row.id, "full_name": row.full_name, "quiz_result": row.quiz_result, "duration_seconds": row.duration_seconds, "region" : row.region}
             for row in result
         ]
         
