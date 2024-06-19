@@ -72,7 +72,7 @@ def top_users():
         # Define the PostgreSQL query as text
         psql_query = """
             SELECT id, full_name, quiz_result,
-                   EXTRACT(EPOCH FROM (quiz_end::timestamp - quiz_start::timestamp)) AS duration_seconds
+                   EXTRACT(EPOCH FROM (quiz_end::timestamp - quiz_start::timestamp)) AS duration_seconds, region
             FROM users
             ORDER BY quiz_result DESC, duration_seconds ASC;
         """
