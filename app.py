@@ -20,6 +20,7 @@ class User(db.Model):
     quiz_start = db.Column(db.String, nullable=False)
     quiz_end = db.Column(db.String, nullable=False)
     quiz_result = db.Column(db.Integer, nullable=False)
+    region = db.Column(db.String, nullable=False)
 
 # Create the database tables
 with app.app_context():
